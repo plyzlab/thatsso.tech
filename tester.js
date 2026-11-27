@@ -1,3 +1,4 @@
+
 (() => {
   const out = document.getElementById('terminal-output');
   const termForm = document.getElementById('terminal-form');
@@ -77,8 +78,10 @@
 
   // Watch DOM changes so we catch if Gatecheck injects elements or re-inserts its script
   const observer = new MutationObserver((mutations) => {
+    let changed = false;
     for (const m of mutations) {
       if (out.contains(m.target) || m.target === statusBadge || m.target === hookIndicator) continue;
+      changed = true;
       m.addedNodes.forEach((n) => {
         if (n.nodeType === 1) {
           print(`[DOM+] <${n.tagName.toLowerCase()}> ${n.src || n.id || n.name || ''}`, 'log-warn');
@@ -90,7 +93,8 @@
         }
       });
     }
-    refreshBadges();
+    // Only refresh for outside changes; refreshing on our own edits loops forever
+    if (changed) refreshBadges();
   });
 
   observer.observe(document.documentElement, { childList: true, subtree: true });
