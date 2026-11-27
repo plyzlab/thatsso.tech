@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>404 — Not Found</title>
+
+  <script>
+    window.__PRE_SHIELD_KEYS = new Set(Object.keys(window));
+  </script>
+
+  <!-- Gatecheck Shield Script -->
+  <script src="https://gatecheck.me/shield.js?key=pk_live_a762235646f32180efd5ecdab2390a7ee233c31e2a47a730e2e43b8555de7465"></script>
+
+  <!-- Fallback router for static hosts (GitHub Pages, etc.) -->
+  <script>
+    (async () => {
+      const clean = window.location.pathname.replace(/\/+$/, '').toLowerCase();
+      const map = { '/login': '/login.html', '/signup': '/signup.html', '/index': '/index.html' };
+      if (map[clean]) {
+        try {
+          const check = await fetch(map[clean], { method: 'HEAD' });
+          if (check.ok) {
+            window.location.replace(map[clean] + window.location.search + window.location.hash);
+          }
+        } catch {}
+      }
+    })();
+  </script>
+
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 640px;
+      margin: 4rem auto;
+      padding: 0 1.25rem;
+      background: #f3f4f6;
+      color: #1f2937;
+    }
+    .card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 2rem;
+    }
+    h1 { margin: 0 0 0.5rem; font-size: 2rem; }
+    code {
+      background: #111827;
+      color: #f85149;
+      padding: 0.2rem 0.5rem;
+      border-radius: 5px;
+      font-size: 0.9rem;
+    }
+    .links {
+      display: flex;
+      gap: 0.6rem;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+    }
+    a, button {
+      text-decoration: none;
+      padding: 0.5rem 0.95rem;
+      border-radius: 6px;
+      border: 1px solid #111827;
+      background: #111827;
+      color: #fff;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    a.secondary { background: #fff; color: #111827; border-color: #d1d5db; }
+    pre {
+      margin-top: 1.25rem;
+      background: #0d1117;
+      color: #e6edf3;
+      padding: 0.85rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>404 — Route Not Found</h1>
+    <p>Nothing exists at <code id="bad-path"></code>.</p>
+
+    <div class="links">
+      <a href="/">Console</a>
+      <a href="/login" class="secondary">Login</a>
+      <a href="/signup" class="secondary">Sign Up</a>
+      <button id="remove-btn" style="background:#b91c1c;border-color:#b91c1c;">Remove Shield Tag</button>
+    </div>
+
+    <pre id="meta"></pre>
+  </div>
+
+  <script>
+    const pathEl = document.getElementById('bad-path');
+    const metaEl = document.getElementById('meta');
+    pathEl.textContent = window.location.pathname + window.location.search;
+
+    function updateMeta() {
+      const shieldTags = Array.from(document.querySelectorAll('script')).filter(
+        (s) => s.src && s.src.includes('gatecheck')
+      );
+      metaEl.textContent = [
+        `URL:         ${window.location.href}`,
+        `Referrer:    ${document.referrer || '(direct)'}`,
+        `Shield tags: ${shieldTags.length}`,
+        `Time:        ${new Date().toISOString()}`,
+      ].join('\n');
+    }
+
+    document.getElementById('remove-btn').addEventListener('click', () => {
+      document.querySelectorAll('script[src*="gatecheck"]').forEach((s) => s.remove());
+      updateMeta();
+    });
+
+    updateMeta();
+  </script>
+</body>
+</html>
