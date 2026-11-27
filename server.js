@@ -16,8 +16,8 @@ const MIME = {
 const ROUTES = {
   '/': 'index.html',
   '/index': 'index.html',
-  '/login': 'login.html',
-  '/signup': 'signup.html',
+  '/login': 'login/index.html',
+  '/signup': 'signup/index.html',
 };
 
 function sendFile(res, filename, statusCode = 200) {
@@ -47,7 +47,7 @@ const server = http.createServer((req, res) => {
 
   // Redirect .html URLs to clean URLs (e.g. /login.html -> /login)
   if (pathname.endsWith('.html') && pathname !== '/404.html') {
-    const clean = pathname === '/index.html' ? '/' : pathname.slice(0, -5);
+    const clean = pathname.replace(/(\/index)?\.html$/, '') || '/';
     res.writeHead(301, { Location: clean + url.search });
     return res.end();
   }
