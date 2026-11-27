@@ -3,87 +3,188 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gatecheck Shield Test</title>
+  <title>Gatecheck Shield Test Console</title>
+
+  <!-- Snapshot globals before Gatecheck loads so we can detect what it adds -->
+  <script>
+    window.__PRE_SHIELD_KEYS = new Set(Object.keys(window));
+  </script>
 
   <!-- Gatecheck Shield Script -->
   <script src="https://gatecheck.me/shield.js?key=pk_live_a762235646f32180efd5ecdab2390a7ee233c31e2a47a730e2e43b8555de7465"></script>
 
   <style>
+    * { box-sizing: border-box; }
     body {
       font-family: system-ui, -apple-system, sans-serif;
-      max-width: 640px;
-      margin: 4rem auto;
-      padding: 0 1.5rem;
-      line-height: 1.6;
+      max-width: 820px;
+      margin: 2rem auto;
+      padding: 0 1.25rem;
+      line-height: 1.5;
       color: #1f2937;
+      background: #f3f4f6;
     }
+    nav {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    nav a {
+      text-decoration: none;
+      padding: 0.45rem 0.9rem;
+      border-radius: 6px;
+      background: #fff;
+      border: 1px solid #d1d5db;
+      color: #111827;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+    nav a.active { background: #111827; color: #fff; border-color: #111827; }
+    .badge {
+      margin-left: auto;
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: #dcfce7;
+      color: #166534;
+    }
+    .badge.removed { background: #fee2e2; color: #991b1b; }
     .card {
+      background: #fff;
       border: 1px solid #e5e7eb;
       border-radius: 10px;
-      padding: 1.5rem;
-      background: #f9fafb;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+    h1 { margin: 0 0 0.5rem; font-size: 1.5rem; }
+    h2 { margin: 0 0 0.75rem; font-size: 1.1rem; }
+    .btn-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
     }
     button {
-      padding: 0.6rem 1.2rem;
-      font-size: 1rem;
+      padding: 0.5rem 0.9rem;
+      font-size: 0.875rem;
       border-radius: 6px;
       border: 1px solid #111827;
       background: #111827;
       color: #fff;
       cursor: pointer;
     }
-    button:hover {
-      background: #374151;
+    button:hover { background: #374151; }
+    button.danger { background: #b91c1c; border-color: #b91c1c; }
+    button.danger:hover { background: #991b1b; }
+    button.secondary { background: #fff; color: #111827; border-color: #d1d5db; }
+    button.secondary:hover { background: #f9fafb; }
+    input[type="text"], input[type="email"], input[type="password"] {
+      width: 100%;
+      padding: 0.55rem 0.7rem;
+      margin: 0.3rem 0 0.85rem;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 0.95rem;
     }
-    pre {
-      background: #111827;
-      color: #f3f4f6;
-      padding: 1rem;
-      border-radius: 8px;
-      overflow-x: auto;
-      font-size: 0.875rem;
+    .terminal {
+      background: #0d1117;
+      color: #e6edf3;
+      border-radius: 10px;
+      overflow: hidden;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.84rem;
     }
+    .terminal-bar {
+      background: #161b22;
+      padding: 0.5rem 0.9rem;
+      border-bottom: 1px solid #30363d;
+      display: flex;
+      justify-content: space-between;
+      color: #8b949e;
+      font-size: 0.78rem;
+    }
+    #terminal-output {
+      height: 300px;
+      overflow-y: auto;
+      padding: 0.85rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .terminal-input-row {
+      display: flex;
+      border-top: 1px solid #30363d;
+      padding: 0.45rem 0.85rem;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .terminal-input-row span { color: #58a6ff; font-weight: bold; }
+    #terminal-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #e6edf3;
+      outline: none;
+      font-family: inherit;
+      font-size: 0.85rem;
+      margin: 0;
+      padding: 0.2rem 0;
+    }
+    .log-info { color: #e6edf3; }
+    .log-ok { color: #3fb950; }
+    .log-warn { color: #d29922; }
+    .log-err { color: #f85149; }
+    .log-cmd { color: #58a6ff; }
   </style>
 </head>
 <body>
-  <h1>Gatecheck Shield Test Page</h1>
-  <p>This page loads your shield script so you can inspect network requests, console logs, and any UI or protection behavior.</p>
+  <nav>
+    <a href="index.html" class="active">Console</a>
+    <a href="login.html">Login Page</a>
+    <a href="signup.html">Sign Up Page</a>
+    <span id="shield-status" class="badge">Shield Tag: Checking...</span>
+  </nav>
+
+  <h1>Gatecheck Shield Test Console</h1>
 
   <div class="card">
-    <h2>Test Actions</h2>
-    <p>Try interacting with the page or submitting a test action below:</p>
-    <form id="test-form">
-      <label for="test-input">Test Field:</label><br />
-      <input id="test-input" type="text" placeholder="Type something..." style="padding: 0.5rem; margin: 0.5rem 0 1rem; width: 100%; box-sizing: border-box;" />
-      <br />
+    <h2>Quick Actions & Tamper Tests</h2>
+    <div class="btn-grid">
+      <button data-cmd="status" class="secondary">Inspect Shield Status</button>
+      <button data-cmd="test-fetch">Run Test Fetch</button>
+      <button data-cmd="burst 5">Burst 5 Requests</button>
+      <button data-cmd="bot-submit">Bot Auto-Submit Form</button>
+      <button data-cmd="remove-script" class="danger">Remove Shield &lt;script&gt;</button>
+      <button data-cmd="strip-dom" class="danger">Strip Injected DOM</button>
+      <button data-cmd="nuke-globals" class="danger">Nuke Added Globals</button>
+      <button data-cmd="restore-fetch" class="danger">Unhook fetch()</button>
+      <button data-cmd="clear-storage" class="danger">Clear Cookies/Storage</button>
+      <button onclick="location.reload()" class="secondary">Reload Clean</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Test Action Form</h2>
+    <form id="test-form" data-endpoint="/api/test-action">
+      <label for="test-input">Payload</label>
+      <input id="test-input" name="payload" type="text" placeholder="Type something..." />
       <button type="submit">Submit Test</button>
     </form>
   </div>
 
-  <h3>Debug Info</h3>
-  <pre id="debug-output">Waiting for events...</pre>
+  <div class="terminal">
+    <div class="terminal-bar">
+      <span>client-tamper-terminal (type "help" for commands)</span>
+      <span id="hook-indicator">fetch: checking...</span>
+    </div>
+    <div id="terminal-output"></div>
+    <form id="terminal-form" class="terminal-input-row">
+      <span>$</span>
+      <input id="terminal-input" type="text" autocomplete="off" placeholder="remove-script | status | bot-submit | eval 1+1" />
+    </form>
+  </div>
 
-  <script>
-    const output = document.getElementById('debug-output');
-    const form = document.getElementById('test-form');
-
-    function log(msg) {
-      output.textContent += '\n' + msg;
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-      output.textContent = 'DOMContentLoaded fired.';
-    });
-
-    window.addEventListener('load', () => {
-      log('Window load fired.');
-    });
-
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const val = document.getElementById('test-input').value;
-      log('Form submitted with value: ' + JSON.stringify(val));
-    });
-  </script>
+  <script src="tester.js"></script>
 </body>
 </html>
